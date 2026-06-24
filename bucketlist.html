@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unsere Bucket List</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F7F3EE;
+    --cream-dark: #EDE8E0;
+    --ink: #1C1A18;
+    --ink-soft: #5C5751;
+    --gold: #B8966A;
+    --gold-light: #D4B896;
+    --rose: #C4847A;
+    --sage: #7A9E8E;
+    --sky: #7A9BB5;
+    --amber: #C49A4A;
+    --border: #D9D2C8;
+    --shadow: rgba(28,26,24,0.08);
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 28px 32px 24px;
+    text-align: center;
+    position: relative;
+  }
+  header .subtitle {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+    font-weight: 400;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 400;
+    letter-spacing: -0.5px;
+  }
+  header h1 em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+  .progress-bar-wrap {
+    margin-top: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--gold-light);
+  }
+  .progress-bar {
+    width: 160px;
+    height: 3px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.6s ease;
+  }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 20px 80px;
+  }
+
+  /* ── NAME SETUP ── */
+  #name-setup {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  #name-setup span { font-size: 13px; color: var(--ink-soft); flex-shrink: 0; }
+  #name-setup input {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: var(--cream);
+    color: var(--ink);
+    width: 180px;
+  }
+  #name-setup input:focus { outline: 2px solid var(--gold); border-color: transparent; }
+  .btn-small {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-small:hover { background: var(--gold); }
+
+  /* ── ADD FORM ── */
+  .add-form {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 32px;
+    box-shadow: 0 2px 16px var(--shadow);
+  }
+  .add-form h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    margin-bottom: 20px;
+    color: var(--ink);
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .form-grid .full { grid-column: 1 / -1; }
+  label {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  input[type="text"], input[type="date"], textarea, select {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    background: var(--cream);
+    color: var(--ink);
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    background: white;
+  }
+  textarea { resize: vertical; min-height: 70px; }
+
+  .cat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .cat-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+    color: var(--ink-soft);
+  }
+  .cat-btn:hover, .cat-btn.active { border-color: var(--gold); color: var(--gold); background: #FBF5EE; }
+
+  .priority-row {
+    display: flex;
+    gap: 10px;
+  }
+  .prio-btn {
+    flex: 1;
+    padding: 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+  .prio-btn:hover, .prio-btn.active { border-color: var(--rose); background: #FDF0EE; color: var(--rose); }
+
+  .btn-add {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 4px;
+  }
+  .btn-add:hover { background: var(--gold); }
+  .btn-add:active { transform: scale(0.99); }
+
+  /* ── FILTERS ── */
+  .filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+  .filter-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+    color: var(--ink-soft);
+  }
+  .filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+  .filter-btn.active { background: var(--ink); border-color: var(--ink); color: white; }
+  .filter-label { font-size: 12px; color: var(--ink-soft); margin-right: 4px; letter-spacing: 1px; text-transform: uppercase; }
+
+  /* ── ITEMS ── */
+  .items-grid {
+    display: grid;
+    gap: 14px;
+  }
+
+  .item-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+    box-shadow: 0 1px 8px var(--shadow);
+    transition: box-shadow 0.2s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .item-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 4px;
+    border-radius: 14px 0 0 14px;
+  }
+  .item-card.cat-reisen::before { background: var(--sky); }
+  .item-card.cat-abenteuer::before { background: var(--sage); }
+  .item-card.cat-essen::before { background: var(--amber); }
+  .item-card.cat-kultur::before { background: var(--rose); }
+  .item-card.cat-lernen::before { background: var(--gold); }
+  .item-card.cat-sonstiges::before { background: var(--border); }
+
+  .item-card:hover { box-shadow: 0 4px 20px rgba(28,26,24,0.12); transform: translateY(-1px); }
+  .item-card.done { opacity: 0.65; }
+  .item-card.done .item-title { text-decoration: line-through; color: var(--ink-soft); }
+
+  .check-btn {
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    margin-top: 2px;
+  }
+  .check-btn:hover { border-color: var(--sage); background: #EEF5F1; }
+  .item-card.done .check-btn { border-color: var(--sage); background: var(--sage); color: white; }
+  .check-btn svg { width: 14px; height: 14px; }
+
+  .item-body { flex: 1; min-width: 0; }
+  .item-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.3;
+    margin-bottom: 6px;
+  }
+  .item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .meta-tag {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .cat-badge {
+    padding: 2px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .cat-badge.cat-reisen { background: #EAF2F8; color: var(--sky); }
+  .cat-badge.cat-abenteuer { background: #EBF5F1; color: var(--sage); }
+  .cat-badge.cat-essen { background: #FBF5E6; color: var(--amber); }
+  .cat-badge.cat-kultur { background: #FDF0EE; color: var(--rose); }
+  .cat-badge.cat-lernen { background: #FBF5EE; color: var(--gold); }
+  .cat-badge.cat-sonstiges { background: var(--cream-dark); color: var(--ink-soft); }
+
+  .prio-hearts { color: var(--rose); font-size: 12px; }
+  .item-note { font-size: 13px; color: var(--ink-soft); font-style: italic; margin-top: 4px; }
+  .by-label { font-size: 11px; color: var(--gold); font-weight: 500; }
+
+  .item-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+  }
+  .icon-btn {
+    width: 28px; height: 28px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-soft);
+    transition: all 0.15s;
+    font-size: 14px;
+  }
+  .icon-btn:hover { background: var(--cream-dark); color: var(--ink); }
+
+  /* ── MEMORY MODAL ── */
+  .modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(28,26,24,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-bg.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  }
+  .modal h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    margin-bottom: 20px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .btn-primary {
+    flex: 1;
+    padding: 11px;
+    border: none;
+    border-radius: 10px;
+    background: var(--ink);
+    color: white;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-primary:hover { background: var(--gold); }
+  .btn-secondary {
+    flex: 1;
+    padding: 11px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--ink); color: var(--ink); }
+
+  .memory-photo-preview {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-top: 10px;
+    display: none;
+  }
+
+  .photo-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--cream);
+    margin-top: 6px;
+    position: relative;
+  }
+  .photo-upload-area:hover, .photo-upload-area.drag-over {
+    border-color: var(--gold);
+    background: #FBF5EE;
+  }
+  .photo-upload-area input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    border: none;
+    padding: 0;
+    background: transparent;
+  }
+  .photo-upload-area .upload-icon { font-size: 28px; margin-bottom: 6px; }
+  .photo-upload-area p { font-size: 13px; color: var(--ink-soft); pointer-events: none; }
+  .photo-upload-area p strong { color: var(--gold); }
+  .photo-remove-btn {
+    margin-top: 8px;
+    padding: 5px 14px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    font-size: 12px;
+    color: var(--rose);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    display: none;
+  }
+  .photo-remove-btn:hover { background: #FDF0EE; }
+
+  /* ── DONE SECTION ── */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 400;
+    color: var(--ink-soft);
+    margin: 36px 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--ink-soft);
+  }
+  .empty .big { font-size: 48px; margin-bottom: 16px; }
+  .empty p { font-family: 'Playfair Display', serif; font-size: 18px; font-style: italic; }
+
+  /* ── CONFETTI ── */
+  .confetti-piece {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    pointer-events: none;
+    z-index: 9999;
+    border-radius: 2px;
+    animation: confettiFall 1.2s ease-in forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+  }
+
+  @media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .form-grid .full { grid-column: 1; }
+    header { padding: 22px 20px 18px; }
+  }
+
+  /* ── GALLERY (done section) ── */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .gallery-card {
+    border-radius: 14px;
+    overflow: hidden;
+    background: white;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px var(--shadow);
+    cursor: pointer;
+    transition: transform 0.18s, box-shadow 0.18s;
+    position: relative;
+  }
+  .gallery-card:hover { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(28,26,24,0.14); }
+  .gallery-card .gc-photo {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    display: block;
+  }
+  .gallery-card .gc-body {
+    padding: 14px 16px;
+  }
+  .gallery-card .gc-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    font-weight: 400;
+    margin-bottom: 5px;
+    color: var(--ink);
+    line-height: 1.35;
+  }
+  .gallery-card .gc-meta {
+    font-size: 11px;
+    color: var(--ink-soft);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .gallery-card .gc-check {
+    position: absolute;
+    top: 10px; right: 10px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--sage);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  /* no-photo card */
+  .gallery-card.no-photo {
+    cursor: pointer;
+  }
+  .gallery-card.no-photo .gc-color-bar {
+    height: 6px;
+  }
+  /* Lightbox */
+  #lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(20,18,16,0.92);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+  }
+  #lightbox.open { display: flex; }
+  .lb-inner {
+    background: white;
+    border-radius: 18px;
+    max-width: 680px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+    position: relative;
+  }
+  .lb-photo {
+    width: 100%;
+    max-height: 380px;
+    object-fit: cover;
+    border-radius: 18px 18px 0 0;
+    display: block;
+  }
+  .lb-body {
+    padding: 28px 32px 32px;
+  }
+  .lb-cat-bar {
+    height: 4px;
+    border-radius: 0;
+  }
+  .lb-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .lb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .lb-memory {
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ink-soft);
+    border-left: 3px solid var(--gold);
+    padding-left: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+  .lb-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .lb-close {
+    position: absolute;
+    top: 14px; right: 14px;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(4px);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    transition: background 0.15s;
+    color: var(--ink);
+  }
+  .lb-close:hover { background: white; }
+
+  /* cat color bars */
+  .bar-reisen { background: var(--sky); }
+  .bar-abenteuer { background: var(--sage); }
+  .bar-essen { background: var(--amber); }
+  .bar-kultur { background: var(--rose); }
+  .bar-lernen { background: var(--gold); }
+  .bar-sonstiges { background: var(--border); }
+
+</style>
+<script type="module">
+// ═══════════════════════════════════════════════
+// FIREBASE SETUP
+// ═══════════════════════════════════════════════
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAVmbOTr2aYT0RF5GlbTp6bRA-PrGd3f2c",
+  authDomain: "bucketlist-67fa0.firebaseapp.com",
+  databaseURL: "https://bucketlist-67fa0-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "bucketlist-67fa0",
+  storageBucket: "bucketlist-67fa0.firebasestorage.app",
+  messagingSenderId: "253460274345",
+  appId: "1:253460274345:web:305063e7332bf83a60ddb8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// ── expose to global scope so non-module functions can call them ──
+window._fb = { db, ref, set, onValue, remove, update };
+window._fbReady = true;
+window.dispatchEvent(new Event('fbready'));
+</script>
+
+</head>
+<body>
+
+<header>
+  
+  <h1>Unsere <em>Bucket List</em></h1>
+  <div class="progress-bar-wrap">
+    <span id="progress-text">0 von 0 erlebt</span>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <span id="progress-pct">0%</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- Name Setup -->
+  <div id="name-setup">
+    <span>Ich bin:</span>
+    <input type="text" id="my-name-input" placeholder="Dein Name" maxlength="30">
+    <button class="btn-small" onclick="saveName()">Speichern</button>
+    <span id="name-display" style="margin-left:auto;font-size:13px;color:var(--gold);font-weight:500;display:none;"></span>
+  </div>
+
+  <!-- Add Form -->
+  <div class="add-form">
+    <h2>Neuen Wunsch hinzufügen</h2>
+    <div class="form-grid">
+      <div class="full">
+        <label>Wunsch / Erlebnis</label>
+        <input type="text" id="new-title" placeholder="z.B. Nordlichter sehen in Island…">
+      </div>
+      <div class="full">
+        <label>Kategorie</label>
+        <div class="cat-grid" id="cat-picker">
+          <button class="cat-btn" data-cat="reisen">✈️ Reisen</button>
+          <button class="cat-btn" data-cat="abenteuer">🧗 Abenteuer</button>
+          <button class="cat-btn" data-cat="essen">🍽️ Essen</button>
+          <button class="cat-btn" data-cat="kultur">🎭 Kultur</button>
+          <button class="cat-btn" data-cat="lernen">📚 Lernen</button>
+          <button class="cat-btn" data-cat="sonstiges">✨ Sonstiges</button>
+        </div>
+      </div>
+      <div>
+        <label>Zieldatum (optional)</label>
+        <input type="date" id="new-date">
+      </div>
+      <div>
+        <label>Priorität</label>
+        <div class="priority-row">
+          <button class="prio-btn" data-prio="1">♡</button>
+          <button class="prio-btn" data-prio="2">♡♡</button>
+          <button class="prio-btn" data-prio="3">♡♡♡</button>
+        </div>
+      </div>
+      <div class="full">
+        <label>Notiz (optional)</label>
+        <textarea id="new-note" placeholder="Warum wollt ihr das erleben? Besondere Ideen?"></textarea>
+      </div>
+      <div class="full">
+        <button class="btn-add" onclick="addItem()">Wunsch hinzufügen ✦</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <span class="filter-label">Zeige:</span>
+    <button class="filter-btn active" data-filter="alle" onclick="setFilter('alle',this)">Alle</button>
+    <button class="filter-btn" data-filter="reisen" onclick="setFilter('reisen',this)">✈️ Reisen</button>
+    <button class="filter-btn" data-filter="abenteuer" onclick="setFilter('abenteuer',this)">🧗 Abenteuer</button>
+    <button class="filter-btn" data-filter="essen" onclick="setFilter('essen',this)">🍽️ Essen</button>
+    <button class="filter-btn" data-filter="kultur" onclick="setFilter('kultur',this)">🎭 Kultur</button>
+    <button class="filter-btn" data-filter="lernen" onclick="setFilter('lernen',this)">📚 Lernen</button>
+    <button class="filter-btn" data-filter="sonstiges" onclick="setFilter('sonstiges',this)">✨ Sonstiges</button>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading-state" style="text-align:center;padding:48px 20px;color:var(--ink-soft);display:none">
+    <div style="font-size:32px;margin-bottom:12px">⏳</div>
+    <p style="font-family:'Playfair Display',serif;font-size:17px;font-style:italic">Eure Liste wird geladen…</p>
+  </div>
+
+  <!-- Open Items -->
+  <div id="open-items" class="items-grid"></div>
+
+  <!-- Done Items -->
+  <div id="done-section" style="display:none">
+    <div class="section-title">Schon erlebt 🥂</div>
+    <div id="done-items" class="gallery-grid"></div>
+  </div>
+
+  <div id="empty-state" class="empty" style="display:none">
+    <div class="big">🌍</div>
+    <p>Eure Bucket List wartet darauf,<br>gefüllt zu werden…</p>
+  </div>
+</div>
+
+<!-- Memory Modal -->
+<div class="modal-bg" id="memory-modal">
+  <div class="modal">
+    <h3>✦ Erinnerung speichern</h3>
+    <div style="margin-bottom:14px">
+      <label>Wie war es? (Kommentar)</label>
+      <textarea id="memory-comment" placeholder="Unser schönster Abend überhaupt…" style="min-height:80px"></textarea>
+    </div>
+    <div>
+      <label>Erinnerungsfoto (optional)</label>
+      <div class="photo-upload-area" id="upload-area">
+        <input type="file" id="memory-photo-file" accept="image/*" onchange="handlePhotoUpload(this)">
+        <div class="upload-icon">📷</div>
+        <p><strong>Foto auswählen</strong> oder hierher ziehen</p>
+        <p style="font-size:11px;margin-top:2px;">JPG, PNG, WEBP – max. 5 MB</p>
+      </div>
+      <img id="memory-photo-preview" class="memory-photo-preview" alt="Vorschau">
+      <button class="photo-remove-btn" id="photo-remove-btn" onclick="removePhoto()">✕ Foto entfernen</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Abbrechen</button>
+      <button class="btn-primary" onclick="confirmDone()">Als erlebt markieren 🎉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+const NAME_KEY = 'bucketlist_myname';
+
+let items       = {};   // keyed by Firebase push-id
+let myName      = '';
+let selectedCat = '';
+let selectedPrio = 0;
+let activeFilter = 'alle';
+let pendingDoneId   = null;
+let lightboxItemId  = null;
+
+// ══════════════════════════════════════════════
+// FIREBASE HELPERS  (wait until SDK is ready)
+// ══════════════════════════════════════════════
+function withFB(fn) {
+  if (window._fbReady) { fn(window._fb); }
+  else { window.addEventListener('fbready', () => fn(window._fb), { once: true }); }
+}
+
+function saveItem(item) {
+  withFB(({ db, ref, set }) => {
+    set(ref(db, 'items/' + item.id), item);
+  });
+}
+
+function removeItem(id) {
+  withFB(({ db, ref, remove }) => {
+    remove(ref(db, 'items/' + id));
+  });
+}
+
+function subscribeItems() {
+  withFB(({ db, ref, onValue }) => {
+    onValue(ref(db, 'items'), snapshot => {
+      items = snapshot.val() || {};
+      render();
+      hideLoading();
+    });
+  });
+}
+
+// ══════════════════════════════════════════════
+// NAME  (localStorage – personal, not shared)
+// ══════════════════════════════════════════════
+function loadName() {
+  myName = localStorage.getItem(NAME_KEY) || '';
+  if (myName) showNameDisplay();
+}
+
+function saveName() {
+  const val = document.getElementById('my-name-input').value.trim();
+  if (!val) return;
+  myName = val;
+  localStorage.setItem(NAME_KEY, myName);
+  showNameDisplay();
+}
+
+function showNameDisplay() {
+  document.getElementById('my-name-input').value = myName;
+  document.getElementById('name-display').textContent = `Hallo, ${myName}! 👋`;
+  document.getElementById('name-display').style.display = 'block';
+}
+
+// ══════════════════════════════════════════════
+// LOADING STATE
+// ══════════════════════════════════════════════
+function showLoading() {
+  document.getElementById('loading-state').style.display = 'block';
+  document.getElementById('open-items').style.display = 'none';
+  document.getElementById('done-section').style.display = 'none';
+}
+function hideLoading() {
+  document.getElementById('loading-state').style.display = 'none';
+  document.getElementById('open-items').style.display = '';
+}
+
+// ══════════════════════════════════════════════
+// CAT & PRIO PICKERS
+// ══════════════════════════════════════════════
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cat = btn.dataset.cat;
+    selectedCat = selectedCat === cat ? '' : cat;
+    document.querySelectorAll('.cat-btn').forEach(b => b.classList.toggle('active', b.dataset.cat === selectedCat));
+  });
+});
+
+document.querySelectorAll('.prio-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const p = parseInt(btn.dataset.prio);
+    selectedPrio = selectedPrio === p ? 0 : p;
+    document.querySelectorAll('.prio-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.prio) === selectedPrio));
+  });
+});
+
+// ══════════════════════════════════════════════
+// ADD ITEM
+// ══════════════════════════════════════════════
+function addItem() {
+  const title = document.getElementById('new-title').value.trim();
+  if (!title) { document.getElementById('new-title').focus(); return; }
+  const item = {
+    id: Date.now().toString(),
+    title,
+    cat:    selectedCat || 'sonstiges',
+    date:   document.getElementById('new-date').value,
+    prio:   selectedPrio,
+    note:   document.getElementById('new-note').value.trim(),
+    by:     myName || 'Anonym',
+    done:   false,
+    doneDate: null,
+    memory: '',
+    photo:  ''
+  };
+
+  saveItem(item);
+
+  // reset form
+  document.getElementById('new-title').value = '';
+  document.getElementById('new-date').value  = '';
+  document.getElementById('new-note').value  = '';
+  selectedCat  = '';
+  selectedPrio = 0;
+  document.querySelectorAll('.cat-btn, .prio-btn').forEach(b => b.classList.remove('active'));
+}
+
+// ══════════════════════════════════════════════
+// FILTER
+// ══════════════════════════════════════════════
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
+  render();
+}
+
+// ══════════════════════════════════════════════
+// CHECK / DONE MODAL
+// ══════════════════════════════════════════════
+function startDone(id) {
+  pendingDoneId = id;
+  document.getElementById('memory-comment').value = '';
+  removePhoto();
+  document.getElementById('memory-modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('memory-modal').classList.remove('open');
+  pendingDoneId = null;
+}
+
+let pendingPhotoDataUrl = '';
+
+function handlePhotoUpload(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) {
+    alert('Das Foto ist zu groß (max. 20 MB).');
+    input.value = '';
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const original = new Image();
+    original.onload = () => {
+      // Compress: max 900px wide/tall, JPEG quality 0.72
+      const MAX = 900;
+      let w = original.width, h = original.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(original, 0, 0, w, h);
+      pendingPhotoDataUrl = canvas.toDataURL('image/jpeg', 0.72);
+      const img = document.getElementById('memory-photo-preview');
+      img.src   = pendingPhotoDataUrl;
+      img.style.display = 'block';
+      document.getElementById('upload-area').style.display      = 'none';
+      document.getElementById('photo-remove-btn').style.display = 'inline-block';
+    };
+    original.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function removePhoto() {
+  pendingPhotoDataUrl = '';
+  const img = document.getElementById('memory-photo-preview');
+  img.src   = '';
+  img.style.display = 'none';
+  document.getElementById('upload-area').style.display      = 'block';
+  document.getElementById('photo-remove-btn').style.display = 'none';
+  document.getElementById('memory-photo-file').value        = '';
+}
+
+// Drag & drop
+document.addEventListener('DOMContentLoaded', () => {
+  const area = document.getElementById('upload-area');
+  if (!area) return;
+  area.addEventListener('dragover', e => { e.preventDefault(); area.classList.add('drag-over'); });
+  area.addEventListener('dragleave', () => area.classList.remove('drag-over'));
+  area.addEventListener('drop', e => {
+    e.preventDefault();
+    area.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) {
+      const dt = new DataTransfer();
+      dt.items.add(file);
+      const input = document.getElementById('memory-photo-file');
+      input.files = dt.files;
+      handlePhotoUpload(input);
+    }
+  });
+});
+
+function confirmDone() {
+  const item = items[pendingDoneId];
+  if (!item) return;
+
+  const btn = document.querySelector('#memory-modal .btn-primary');
+  btn.disabled    = true;
+  btn.textContent = 'Speichern…';
+
+  const updated = {
+    ...item,
+    done:     true,
+    doneDate: new Date().toLocaleDateString('de-DE'),
+    memory:   document.getElementById('memory-comment').value.trim(),
+    photo:    pendingPhotoDataUrl   // compressed base64, stored directly in DB
+  };
+
+  saveItem(updated);
+  closeModal();
+  launchConfetti();
+
+  btn.disabled    = false;
+  btn.textContent = 'Als erlebt markieren 🎉';
+}
+
+function uncheck(id) {
+  const item = items[id];
+  if (!item) return;
+  saveItem({ ...item, done: false, doneDate: null, memory: '', photo: '' });
+}
+
+function deleteItem(id) {
+  if (!confirm('Diesen Wunsch wirklich löschen?')) return;
+  removeItem(id);
+}
+
+// ══════════════════════════════════════════════
+// CONFETTI
+// ══════════════════════════════════════════════
+function launchConfetti() {
+  const colors = ['#B8966A','#C4847A','#7A9E8E','#7A9BB5','#C49A4A','#D4B896'];
+  for (let i = 0; i < 60; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.style.left              = Math.random() * 100 + 'vw';
+    el.style.top               = '0';
+    el.style.background        = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay    = Math.random() * 0.8 + 's';
+    el.style.animationDuration = (0.8 + Math.random() * 0.8) + 's';
+    el.style.width             = (6 + Math.random() * 8) + 'px';
+    el.style.height            = (6 + Math.random() * 8) + 'px';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2500);
+  }
+}
+
+// ══════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════
+function catLabel(cat) {
+  const map = { reisen:'✈️ Reisen', abenteuer:'🧗 Abenteuer', essen:'🍽️ Essen', kultur:'🎭 Kultur', lernen:'📚 Lernen', sonstiges:'✨ Sonstiges' };
+  return map[cat] || cat;
+}
+
+function render() {
+  const all  = Object.values(items);
+  const open = all.filter(i => !i.done && (activeFilter === 'alle' || i.cat === activeFilter));
+  const done = all.filter(i =>  i.done && (activeFilter === 'alle' || i.cat === activeFilter));
+
+  // Sort open: newest first
+  open.sort((a, b) => b.id - a.id);
+  // Sort done: most recently completed first
+  done.sort((a, b) => b.id - a.id);
+
+  // Progress (all items, ignoring filter)
+  const total     = all.length;
+  const doneCount = all.filter(i => i.done).length;
+  const pct       = total ? Math.round(doneCount / total * 100) : 0;
+  document.getElementById('progress-text').textContent = `${doneCount} von ${total} erlebt`;
+  document.getElementById('progress-pct').textContent  = pct + '%';
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Open items
+  document.getElementById('open-items').innerHTML = open.map(item => itemHTML(item)).join('');
+
+  // Done gallery
+  const doneSection = document.getElementById('done-section');
+  if (done.length > 0) {
+    doneSection.style.display  = 'block';
+    document.getElementById('done-items').innerHTML = done.map(item => galleryCardHTML(item)).join('');
+  } else {
+    doneSection.style.display = 'none';
+  }
+
+  // Empty state
+  document.getElementById('empty-state').style.display = (total === 0) ? 'block' : 'none';
+}
+
+function itemHTML(item) {
+  const hearts     = item.prio ? '♥'.repeat(item.prio) : '';
+  const dateStr    = item.date ? `📅 ${new Date(item.date).toLocaleDateString('de-DE', {day:'numeric',month:'long',year:'numeric'})}` : '';
+
+  return `
+  <div class="item-card cat-${item.cat}" id="card-${item.id}">
+    <button class="check-btn" onclick="startDone('${item.id}')" title="Als erlebt markieren"></button>
+    <div class="item-body">
+      <div class="item-title">${item.title}</div>
+      <div class="item-meta">
+        <span class="cat-badge cat-${item.cat}">${catLabel(item.cat)}</span>
+        ${hearts   ? `<span class="prio-hearts">${hearts}</span>` : ''}
+        ${dateStr  ? `<span class="meta-tag">${dateStr}</span>`   : ''}
+        <span class="by-label">von ${item.by}</span>
+      </div>
+      ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
+    </div>
+    <div class="item-actions">
+      <button class="icon-btn" onclick="deleteItem('${item.id}')" title="Löschen">🗑</button>
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════════════
+// GALLERY CARDS  (done section)
+// ══════════════════════════════════════════════
+function galleryCardHTML(item) {
+  const hearts  = item.prio ? '♥'.repeat(item.prio) : '';
+  const dateStr = item.doneDate || '';
+
+  if (item.photo) {
+    return `
+    <div class="gallery-card" onclick="openLightbox('${item.id}')">
+      <div style="position:relative">
+        <img class="gc-photo" src="${item.photo}" alt="${item.title}">
+        <div class="gc-check"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2.5"><polyline points="2,8 6,12 14,4"/></svg></div>
+      </div>
+      <div class="gc-body">
+        <div class="gc-title">${item.title}</div>
+        <div class="gc-meta">
+          <span class="cat-badge cat-${item.cat}" style="font-size:10px">${catLabel(item.cat)}</span>
+          ${hearts ? `<span style="color:var(--rose);font-size:11px">${hearts}</span>` : ''}
+          ${dateStr ? `<span>✓ ${dateStr}</span>` : ''}
+        </div>
+      </div>
+    </div>`;
+  } else {
+    return `
+    <div class="gallery-card no-photo" onclick="openLightbox('${item.id}')">
+      <div class="gc-color-bar bar-${item.cat}"></div>
+      <div class="gc-body" style="padding:18px 16px">
+        <div style="font-size:22px;margin-bottom:8px">✓</div>
+        <div class="gc-title">${item.title}</div>
+        <div class="gc-meta" style="margin-top:6px">
+          <span class="cat-badge cat-${item.cat}" style="font-size:10px">${catLabel(item.cat)}</span>
+          ${hearts ? `<span style="color:var(--rose);font-size:11px">${hearts}</span>` : ''}
+          ${dateStr ? `<span>Erlebt am ${dateStr}</span>` : ''}
+        </div>
+        ${item.memory ? `<div style="font-size:12px;font-style:italic;color:var(--ink-soft);margin-top:8px;line-height:1.4">"${item.memory.substring(0,80)}${item.memory.length>80?'…':''}"</div>` : ''}
+      </div>
+    </div>`;
+  }
+}
+
+// ══════════════════════════════════════════════
+// LIGHTBOX
+// ══════════════════════════════════════════════
+function openLightbox(id) {
+  const item = items[id];
+  if (!item) return;
+  lightboxItemId = id;
+
+  const photo = document.getElementById('lb-photo');
+  const bar   = document.getElementById('lb-cat-bar');
+
+  if (item.photo) {
+    photo.src          = item.photo;
+    photo.style.display = 'block';
+    bar.className      = 'lb-cat-bar';
+    bar.style.height   = '0';
+  } else {
+    photo.style.display = 'none';
+    bar.className      = `lb-cat-bar bar-${item.cat}`;
+    bar.style.height   = '8px';
+  }
+
+  document.getElementById('lb-title').textContent = item.title;
+
+  const hearts = item.prio ? '♥'.repeat(item.prio) : '';
+  document.getElementById('lb-meta').innerHTML = `
+    <span class="cat-badge cat-${item.cat}">${catLabel(item.cat)}</span>
+    ${hearts ? `<span style="color:var(--rose)">${hearts}</span>` : ''}
+    ${item.doneDate ? `<span>✓ Erlebt am ${item.doneDate}</span>` : ''}
+    <span style="color:var(--gold)">von ${item.by}</span>
+  `;
+
+  const memEl = document.getElementById('lb-memory');
+  if (item.memory) {
+    memEl.textContent  = '„' + item.memory + '"';
+    memEl.style.display = 'block';
+  } else {
+    memEl.style.display = 'none';
+  }
+
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+  lightboxItemId = null;
+}
+
+function uncheckFromLightbox() {
+  const id = lightboxItemId;
+  if (!id) return;
+  closeLightbox();
+  uncheck(id);
+}
+
+function deleteFromLightbox() {
+  const id = lightboxItemId;
+  if (!id) return;
+  if (!confirm('Diesen Eintrag wirklich löschen?')) return;
+  closeLightbox();
+  deleteItem(id);
+}
+
+document.addEventListener('click',   e => { if (e.target.id === 'lightbox') closeLightbox(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// ══════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════
+loadName();
+showLoading();
+subscribeItems();
+
+document.getElementById('new-title').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addItem();
+});
+</script>
+
+<!-- Lightbox -->
+<div id="lightbox">
+  <div class="lb-inner" id="lb-inner">
+    <button class="lb-close" onclick="closeLightbox()">✕</button>
+    <img id="lb-photo" class="lb-photo" alt="" style="display:none">
+    <div id="lb-cat-bar" class="lb-cat-bar"></div>
+    <div class="lb-body">
+      <div id="lb-title" class="lb-title"></div>
+      <div id="lb-meta" class="lb-meta"></div>
+      <div id="lb-memory" class="lb-memory" style="display:none"></div>
+      <div class="lb-actions">
+        <button class="btn-secondary" style="flex:none;padding:8px 18px;font-size:13px" onclick="uncheckFromLightbox()">↩ Rückgängig</button>
+        <button class="btn-secondary" style="flex:none;padding:8px 18px;font-size:13px;color:var(--rose);border-color:var(--rose)" onclick="deleteFromLightbox()">🗑 Löschen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
