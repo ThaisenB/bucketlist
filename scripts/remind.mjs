@@ -1,17 +1,17 @@
 import fetch from 'node-fetch';
+import nodemailer from 'nodemailer';
 
-const FIREBASE_DB_URL = process.env.FIREBASE_DB_URL;
-const EMAILJS_KEY     = process.env.EMAILJS_KEY;
-const EMAILJS_SERVICE  = 'service_3elr6xr';
-const EMAILJS_TEMPLATE = 'template_er1ip0h';
+const FIREBASE_DB_URL  = process.env.FIREBASE_DB_URL;
+const GMAIL_USER       = process.env.GMAIL_USER;
+const GMAIL_APP_PW     = process.env.GMAIL_APP_PW;
 
-// E-Mail-Adressen der Empfänger – hier beide eintragen
+// E-Mail-Adressen der Empfänger
 const RECIPIENTS = [
-  'matthiasberthel@googlemail.com',
-  'reer.sarah@gmail.com'
+  process.env.GMAIL_USER,          // deine eigene Adresse
+  process.env.RECIPIENT_2          // E-Mail deiner Freundin
 ];
 
-// ── Heute und morgen als deutsche Datumsstrings ──
+// ── Heute und morgen ──
 function toDE(date) {
   return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
@@ -19,7 +19,6 @@ function toDE(date) {
 const today    = new Date();
 const tomorrow = new Date();
 tomorrow.setDate(today.getDate() + 1);
-
 const todayStr    = toDE(today);
 const tomorrowStr = toDE(tomorrow);
 
@@ -31,29 +30,38 @@ async function loadItems() {
   return Object.values(data);
 }
 
-// ── E-Mail via EmailJS REST API ──
-async function sendEmail(to, remindersText) {
-  const body = {
-    service_id:  EMAILJS_SERVICE,
-    template_id: EMAILJS_TEMPLATE,
-    user_id:     EMAILJS_KEY,
-    template_params: {
-      to_email:  to,
-      reminders: remindersText
+// ── E-Mail senden ──
+async function sendEmails(reminders) {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: GMAIL_APP_PW
     }
-  };
-
-  const res = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body)
   });
 
-  if (res.ok) {
-    console.log(`✅ E-Mail gesendet an ${to}`);
-  } else {
-    const text = await res.text();
-    console.error(`❌ Fehler bei ${to}:`, text);
+  const html = `
+    <div style="font-family:Georgia,serif;max-width:480px;margin:0 auto;padding:32px;background:#F7F3EE;border-radius:12px">
+      <h2 style="font-size:22px;color:#1C1A18;margin-bottom:8px">📅 Bucket List Erinnerung</h2>
+      <p style="color:#5C5751;font-size:14px;margin-bottom:24px">Folgende Erlebnisse stehen bald an:</p>
+      ${reminders.map(r => `
+        <div style="background:white;border-radius:8px;padding:14px 18px;margin-bottom:10px;border-left:4px solid ${r.startsWith('🔴') ? '#C4847A' : '#B8966A'}">
+          <p style="margin:0;font-size:15px;color:#1C1A18">${r}</p>
+        </div>
+      `).join('')}
+      <p style="color:#5C5751;font-size:12px;margin-top:24px">Eure gemeinsame Bucket List</p>
+    </div>
+  `;
+
+  for (const to of RECIPIENTS) {
+    if (!to) continue;
+    const info = await transporter.sendMail({
+      from:    `"Bucket List 🗺️" <${GMAIL_USER}>`,
+      to,
+      subject: `📅 Bucket List Erinnerung – ${todayStr}`,
+      html
+    });
+    console.log(`✅ E-Mail gesendet an ${to} (${info.messageId})`);
   }
 }
 
@@ -65,17 +73,11 @@ async function main() {
   const open  = items.filter(i => !i.done && i.date);
 
   const reminders = [];
-
   for (const item of open) {
-    // Firebase speichert das Datum als YYYY-MM-DD
     const d   = new Date(item.date + 'T12:00:00');
     const str = toDE(d);
-
-    if (str === todayStr) {
-      reminders.push(`🔴 HEUTE: „${item.title}" (eingetragen von ${item.by})`);
-    } else if (str === tomorrowStr) {
-      reminders.push(`🟡 MORGEN: „${item.title}" (eingetragen von ${item.by})`);
-    }
+    if (str === todayStr)    reminders.push(`🔴 HEUTE: „${item.title}" (von ${item.by})`);
+    else if (str === tomorrowStr) reminders.push(`🟡 MORGEN: „${item.title}" (von ${item.by})`);
   }
 
   if (reminders.length === 0) {
@@ -83,12 +85,8 @@ async function main() {
     return;
   }
 
-  const remindersText = reminders.join('\n');
-  console.log('📬 Versende:\n' + remindersText);
-
-  for (const email of RECIPIENTS) {
-    await sendEmail(email, remindersText);
-  }
+  console.log('📬 Versende:\n' + reminders.join('\n'));
+  await sendEmails(reminders);
 }
 
 main().catch(err => {
