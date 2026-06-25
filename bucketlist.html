@@ -500,6 +500,14 @@ document.querySelectorAll('.prio-btn').forEach(btn => btn.addEventListener('clic
 // ══════════════════════════════════════════════
 // ADD ITEM
 // ══════════════════════════════════════════════
+// ── Notification trigger ──
+function saveNotification(type, payload) {
+  withFB(({db, ref, set}) => {
+    const id = Date.now().toString();
+    set(ref(db, 'notifications/' + id), { type, payload, ts: id, sent: false });
+  });
+}
+
 function addItem() {
   const title = document.getElementById('new-title').value.trim();
   if (!title) { document.getElementById('new-title').focus(); return; }
@@ -509,10 +517,10 @@ function addItem() {
     location: document.getElementById('new-location').value.trim(),
     by: myName||'Anonym', done: false, doneDate: null, memory: '', photo: '',
     reactions: {}, comments: [] };
-  // prepend to order
   const newOrder = [id, ...itemOrder.filter(x => x !== id)];
   saveItem(item);
   saveOrder(newOrder);
+  saveNotification('new_item', { title, by: myName||'Anonym', cat: item.cat });
   document.getElementById('new-title').value = '';
   document.getElementById('new-date').value = '';
   document.getElementById('new-note').value = '';
@@ -643,6 +651,7 @@ function addComment(id) {
   const item=items[id]; if(!item) return;
   const comments=[...(item.comments||[]),{author:myName||'Anonym',text,time:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}];
   saveItem({...item,comments});
+  saveNotification('new_comment', { itemTitle: item.title, comment: text, by: myName||'Anonym' });
   inp.value='';
 }
 
