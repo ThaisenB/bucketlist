@@ -1,12 +1,12 @@
-name: Daily Bucket List Reminder
+name: Bucket List Benachrichtigungen
 
 on:
   schedule:
-    - cron: '0 7 * * *'  # täglich um 08:00 Uhr deutsche Zeit (UTC+1)
-  workflow_dispatch:       # manuell auslösbar zum Testen
+    - cron: '*/5 * * * *'  # alle 5 Minuten
+  workflow_dispatch:
 
 jobs:
-  send-reminders:
+  send-notifications:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,10 +19,10 @@ jobs:
       - name: Install dependencies
         run: npm install node-fetch@3 nodemailer
 
-      - name: Run reminder script
+      - name: Run notification script
         env:
           FIREBASE_DB_URL: ${{ secrets.FIREBASE_DB_URL }}
           GMAIL_USER:      ${{ secrets.GMAIL_USER }}
           GMAIL_APP_PW:    ${{ secrets.GMAIL_APP_PW }}
           RECIPIENT_2:     ${{ secrets.RECIPIENT_2 }}
-        run: node scripts/remind.mjs
+        run: node scripts/notify.mjs
