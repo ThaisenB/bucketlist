@@ -1271,10 +1271,101 @@ document.addEventListener('click',   e => { if (e.target.id === 'lightbox') clos
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
 
 // ══════════════════════════════════════════════
+// REMINDERS  (browser notification on open)
+// ══════════════════════════════════════════════
+function toDE(date) {
+  return date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+}
+
+function checkReminders(itemsObj) {
+  const all   = Object.values(itemsObj);
+  const open  = all.filter(i => !i.done && i.date);
+  if (!open.length) return;
+
+  const today    = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+  const todayStr    = toDE(today);
+  const tomorrowStr = toDE(tomorrow);
+
+  const hits = [];
+  for (const item of open) {
+    const d   = new Date(item.date + 'T12:00:00');
+    const str = toDE(d);
+    if (str === todayStr)    hits.push(`🔴 HEUTE: „${item.title}"`);
+    else if (str === tomorrowStr) hits.push(`🟡 MORGEN: „${item.title}"`);
+  }
+
+  if (!hits.length) return;
+
+  const msg = hits.join('\n');
+
+  // Browser notification
+  if ('Notification' in window) {
+    const show = () => {
+      hits.forEach((h, i) => {
+        setTimeout(() => {
+          new Notification('📅 Bucket List Erinnerung', { body: h, icon: '' });
+        }, i * 800);
+      });
+    };
+    if (Notification.permission === 'granted') {
+      show();
+    } else if (Notification.permission !== 'denied') {
+      Notification.requestPermission().then(p => { if (p === 'granted') show(); });
+    }
+  }
+
+  // In-app banner
+  const existing = document.getElementById('reminder-banner');
+  if (existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.id = 'reminder-banner';
+  banner.style.cssText = `
+    position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:var(--cream);border-radius:14px;
+    padding:16px 22px;max-width:420px;width:90%;z-index:500;
+    box-shadow:0 8px 32px rgba(0,0,0,0.25);font-size:14px;line-height:1.6;
+    font-family:'Inter',sans-serif;
+  `;
+  banner.innerHTML = `
+    <div style="font-family:'Playfair Display',serif;font-size:16px;margin-bottom:8px;color:var(--gold-light)">
+      📅 Erinnerung
+    </div>
+    <div>${hits.map(h => `<div>${h}</div>`).join('')}</div>
+    <button onclick="this.parentElement.remove()" style="
+      margin-top:12px;padding:6px 16px;border:1px solid rgba(255,255,255,0.3);
+      border-radius:8px;background:transparent;color:var(--cream);
+      cursor:pointer;font-size:13px;font-family:'Inter',sans-serif;
+    ">Schließen</button>
+  `;
+  document.body.appendChild(banner);
+  setTimeout(() => banner?.remove(), 12000);
+}
+
+// ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
 loadName();
 showLoading();
+
+// Subscribe and check reminders on first load
+let reminderChecked = false;
+const _origSubscribe = subscribeItems;
+function subscribeItems() {
+  withFB(({ db, ref, onValue }) => {
+    onValue(ref(db, 'items'), snapshot => {
+      items = snapshot.val() || {};
+      render();
+      hideLoading();
+      if (!reminderChecked) {
+        reminderChecked = true;
+        checkReminders(items);
+      }
+    });
+  });
+}
+
 subscribeItems();
 
 document.getElementById('new-title').addEventListener('keydown', e => {

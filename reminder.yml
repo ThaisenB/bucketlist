@@ -1,0 +1,26 @@
+name: Daily Bucket List Reminder
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # täglich um 08:00 Uhr deutsche Zeit (UTC+1)
+  workflow_dispatch:       # manuell auslösbar zum Testen
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install node-fetch@3 emailjs-com
+
+      - name: Run reminder script
+        env:
+          FIREBASE_DB_URL: ${{ secrets.FIREBASE_DB_URL }}
+          EMAILJS_KEY: ${{ secrets.EMAILJS_KEY }}
+        run: node scripts/remind.mjs
