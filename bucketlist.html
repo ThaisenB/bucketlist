@@ -2,6 +2,13 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="theme-color" content="#1C1A18">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bucket List">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Unsere Bucket List</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
@@ -906,5 +913,45 @@ function checkReminders(itemsObj){
 loadName();showLoading();subscribeItems();
 document.getElementById('new-title').addEventListener('keydown',e=>{if(e.key==='Enter')addItem();});
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW registered:', reg.scope))
+      .catch(err => console.log('SW error:', err));
+  });
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  const banner = document.getElementById('install-banner');
+  if (banner) banner.style.display = 'none';
+  deferredPrompt = null;
+});
+function installApp() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+  }
+}
+</script>
+
+<div id="install-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--cream);border-radius:14px;padding:14px 20px;max-width:360px;width:90%;z-index:600;box-shadow:0 8px 32px rgba(0,0,0,0.25);align-items:center;gap:14px;font-family:'Inter',sans-serif;">
+  <span style="font-size:24px">📲</span>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:500;margin-bottom:2px">App installieren</div>
+    <div style="font-size:11px;color:var(--gold-light)">Zum Homescreen hinzufügen</div>
+  </div>
+  <button onclick="installApp()" style="padding:7px 16px;border:none;border-radius:8px;background:var(--gold);color:var(--ink);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;font-weight:500;">Installieren</button>
+  <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:7px;border:none;background:transparent;color:var(--gold-light);font-size:16px;cursor:pointer;">✕</button>
+</div>
 </body>
 </html>
