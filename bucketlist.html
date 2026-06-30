@@ -218,6 +218,28 @@
   /* STREAK */
   .streak-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.1); border-radius:20px; padding:5px 14px; font-size:12px; color:var(--gold-light); margin-top:10px; }
 
+  /* COUNTDOWN */
+  .countdown-badge { display:inline-block; padding:2px 9px; border-radius:10px; font-size:10px; font-weight:600; letter-spacing:0.3px; margin-left:6px; }
+  .countdown-badge.cd-overdue { background:#FDF0EE; color:var(--rose); }
+  .countdown-badge.cd-today   { background:var(--rose); color:white; }
+  .countdown-badge.cd-soon    { background:#FBF1DD; color:var(--amber); }
+  .countdown-badge.cd-normal  { background:var(--cream-dark); color:var(--ink-soft); }
+  .countdown-badge.cd-far     { background:var(--cream-dark); color:var(--border); }
+
+  /* MILESTONE BADGES */
+  .milestone-banner { background:linear-gradient(135deg,var(--gold) 0%,var(--gold-light) 100%); border-radius:14px; padding:18px 24px; margin-bottom:20px; display:flex; align-items:center; gap:16px; box-shadow:0 4px 20px rgba(184,150,106,0.3); animation:milestonePop 0.5s ease; }
+  @keyframes milestonePop { 0%{transform:scale(0.9);opacity:0} 100%{transform:scale(1);opacity:1} }
+  .milestone-banner .ms-icon { font-size:36px; }
+  .milestone-banner .ms-text { flex:1; color:white; }
+  .milestone-banner .ms-title { font-family:'Playfair Display',serif; font-size:18px; margin-bottom:2px; }
+  .milestone-banner .ms-sub { font-size:12px; opacity:0.9; }
+  .milestone-banner .ms-close { background:rgba(255,255,255,0.2); border:none; color:white; width:26px; height:26px; border-radius:50%; cursor:pointer; font-size:14px; }
+
+  .badges-row { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; justify-content:center; }
+  .badge-pill { display:flex; align-items:center; gap:5px; background:rgba(255,255,255,0.1); border:1px solid rgba(212,184,150,0.3); border-radius:20px; padding:5px 12px; font-size:11px; color:var(--gold-light); }
+  .badge-pill.locked { opacity:0.35; }
+  .badge-pill .bp-icon { font-size:14px; }
+
   @media(max-width:600px) { .form-grid{grid-template-columns:1fr} .form-grid .full{grid-column:1} header{padding:22px 20px 18px} .header-btns{position:static;transform:none;margin-top:12px;justify-content:center} }
 </style>
 
@@ -721,6 +743,7 @@ function render() {
   document.getElementById('progress-fill').style.width=pct+'%';
 
   renderStreak(all);
+  checkMilestoneCelebration(doneCount);
   document.getElementById('open-items').innerHTML=open.map(itemHTML).join('');
   const ds=document.getElementById('done-section');
   if(done.length>0){ds.style.display='block';document.getElementById('done-items').innerHTML=done.map(galleryCardHTML).join('');}
@@ -729,9 +752,26 @@ function render() {
   if(mapInitialized) refreshMap();
 }
 
+function countdownText(dateStr) {
+  const target = new Date(dateStr + 'T00:00:00');
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diffDays = Math.round((target - today) / (1000*60*60*24));
+  if (diffDays < 0) return { text: `überfällig seit ${Math.abs(diffDays)} Tag${Math.abs(diffDays)!==1?'en':''}`, cls: 'cd-overdue' };
+  if (diffDays === 0) return { text: 'heute!', cls: 'cd-today' };
+  if (diffDays === 1) return { text: 'morgen', cls: 'cd-soon' };
+  if (diffDays <= 7) return { text: `noch ${diffDays} Tage`, cls: 'cd-soon' };
+  if (diffDays <= 30) return { text: `noch ${diffDays} Tage`, cls: 'cd-normal' };
+  return { text: `noch ${diffDays} Tage`, cls: 'cd-far' };
+}
+
 function itemHTML(item) {
   const hearts=item.prio?'♥'.repeat(item.prio):'';
-  const dateStr=item.date?`📅 ${new Date(item.date+'T12:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'})}`:'';
+  let dateStr='';
+  if (item.date) {
+    const formatted = new Date(item.date+'T12:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'long',year:'numeric'});
+    const cd = countdownText(item.date);
+    dateStr = `📅 ${formatted} <span class="countdown-badge ${cd.cls}">${cd.text}</span>`;
+  }
   const reactions=item.reactions||{};
   const comments=item.comments||[];
   const reactionHTML=`<div class="reactions-row">${['❤️','🔥','😂','🙌','😍'].map(e=>{
@@ -816,8 +856,58 @@ function renderStreak(all) {
   });
   let streak=0,d=new Date();
   while(true){const key=String(d.getMonth()+1).padStart(2,'0')+'.'+d.getFullYear();if(months.has(key)){streak++;d.setMonth(d.getMonth()-1);}else break;}
-  if(streak>0) document.getElementById('streak-wrap').innerHTML=`<div class="streak-badge">🔥 ${streak} Monat${streak>1?'e':''} in Folge erlebt</div>`;
-  else document.getElementById('streak-wrap').innerHTML='';
+  const streakHTML = streak>0 ? `<div class="streak-badge">🔥 ${streak} Monat${streak>1?'e':''} in Folge erlebt</div>` : '';
+  document.getElementById('streak-wrap').innerHTML = streakHTML + renderMilestoneBadges(done.length);
+}
+
+// ══════════════════════════════════════════════
+// MILESTONE BADGES
+// ══════════════════════════════════════════════
+const MILESTONES = [
+  { count: 10, icon: '🌱', label: '10 erlebt' },
+  { count: 25, icon: '🌿', label: '25 erlebt' },
+  { count: 50, icon: '🌳', label: '50 erlebt' },
+  { count: 100, icon: '🏆', label: '100 erlebt' }
+];
+const SEEN_MILESTONES_KEY = 'bucketlist_seen_milestones';
+
+function getSeenMilestones() {
+  try { return JSON.parse(localStorage.getItem(SEEN_MILESTONES_KEY) || '[]'); } catch { return []; }
+}
+function markMilestoneSeen(count) {
+  const seen = getSeenMilestones();
+  if (!seen.includes(count)) { seen.push(count); localStorage.setItem(SEEN_MILESTONES_KEY, JSON.stringify(seen)); }
+}
+
+function renderMilestoneBadges(doneCount) {
+  return `<div class="badges-row">${MILESTONES.map(m => {
+    const unlocked = doneCount >= m.count;
+    return `<div class="badge-pill${unlocked?'':' locked'}"><span class="bp-icon">${m.icon}</span><span>${m.label}</span></div>`;
+  }).join('')}</div>`;
+}
+
+function checkMilestoneCelebration(doneCount) {
+  const seen = getSeenMilestones();
+  const justReached = MILESTONES.find(m => doneCount >= m.count && !seen.includes(m.count));
+  if (!justReached) return;
+  markMilestoneSeen(justReached.count);
+
+  const existing = document.getElementById('milestone-banner');
+  if (existing) existing.remove();
+  const banner = document.createElement('div');
+  banner.id = 'milestone-banner';
+  banner.className = 'milestone-banner';
+  banner.innerHTML = `
+    <div class="ms-icon">${justReached.icon}</div>
+    <div class="ms-text">
+      <div class="ms-title">${justReached.count} Erlebnisse geschafft!</div>
+      <div class="ms-sub">Ihr habt gemeinsam ${justReached.count} Wünsche wahr gemacht 🎉</div>
+    </div>
+    <button class="ms-close" onclick="this.parentElement.remove()">✕</button>
+  `;
+  const container = document.querySelector('.container');
+  container.insertBefore(banner, container.firstChild);
+  launchConfetti();
 }
 
 // ══════════════════════════════════════════════
